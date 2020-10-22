@@ -1,0 +1,58 @@
+name: Update CI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '31 0 * * *'
+      
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Init - Vars
+      id: initvars
+      run: |
+       echo "::set-output name=current_date::$(date -u +%Y-%m-%d)"
+       
+    - name: Init - Configure Git
+      run: |
+        git config --global user.email "update.bot@nosuchmail.nonexistantaddress"
+        git config --global user.name "Update Bot"
+       
+    - name: Download full data
+      run: |
+        mkdir build
+        cd build
+        curl -L https://raw.githubusercontent.com/statinsight/PopularGHRepos/master/data/${{ steps.initvars.outputs.current_date }}.sqlite -o database.sqlite
+   
+    - name: Init Tools
+      run: |
+        cp $GITHUB_WORKSPACE/bin/sqlite3 build/sqlite3
+        chmod +x build/sqlite3
+        
+    - name: Convert database to thin csv
+      run: |
+        echo "SELECT DefaultBranch, COUNT(*) AS count" > query.sql
+        echo "FROM RepositoryInfos" >> query.sql
+        echo "GROUP BY DefaultBranch" >> query.sql
+        echo "ORDER BY count DESC;" >> query.sql
+        ./sqlite3 database.sqlite -header -csv < query.sql > db.csv
+      working-directory: build
+      
+    - name: Transfer data into git repo
+      run: |
+        mkdir -p data
+        mv build/db.csv data/${{ steps.initvars.outputs.current_date }}.csv
+      
+    - name: Clean
+      run: rm -r build
+      
+    - name: Commit and Push
+      run: |
+        git add -A
+        git commit -m "Added files of ${{ steps.initvars.outputs.current_date }}"
+        git push origin
