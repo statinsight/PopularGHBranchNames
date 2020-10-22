@@ -39,8 +39,8 @@ jobs:
         echo "SELECT DefaultBranch, COUNT(*) AS count" > query.sql
         echo "FROM RepositoryInfos" >> query.sql
         echo "GROUP BY DefaultBranch" >> query.sql
-        echo "HAVING count > 10" >> query.sql
-        echo "ORDER BY count DESC;" >> query.sql
+        echo "ORDER BY count DESC" >> query.sql
+        echo "LIMIT 10;" >> query.sql
         ./sqlite3 database.sqlite -header -csv < query.sql > db.csv
       working-directory: build
       
