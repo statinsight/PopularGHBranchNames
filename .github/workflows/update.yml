@@ -31,7 +31,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        curl -L https://raw.githubusercontent.com/statinsight/PopularGHRepos/master/data/${{ steps.initvars.outputs.current_date }}.sqlite -o database.sqlite
+        curl -fL https://raw.githubusercontent.com/statinsight/PopularGHRepos/master/data/${{ steps.initvars.outputs.current_date }}.sqlite -o database.sqlite
    
     - name: Init Tools
       run: |
