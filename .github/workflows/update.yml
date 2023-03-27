@@ -2,6 +2,8 @@ name: Update
 
 on:
   workflow_dispatch:
+    inputs:
+      date:
   schedule:
     - cron: '1 1 * * *'
       
@@ -16,7 +18,9 @@ jobs:
     - name: Init - Vars
       id: initvars
       run: |
-       echo "current_date=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
+       echo "current_date=$(if [ -z "$SELECTED_DATE" ]; then date -u +%Y-%m-%d; else echo $SELECTED_DATE; fi)" >> $GITHUB_OUTPUT
+      env:
+        SELECTED_DATE: ${{ inputs.date }}
        
     - name: Init - Configure Git
       run: |
