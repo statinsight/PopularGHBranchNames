@@ -35,8 +35,7 @@ jobs:
    
     - name: Init Tools
       run: |
-        cp $GITHUB_WORKSPACE/bin/sqlite3 build/sqlite3
-        chmod +x build/sqlite3
+        sudo apt-get install -y sqlite3
         
     - name: Convert database to thin csv
       run: |
@@ -45,7 +44,7 @@ jobs:
         echo "GROUP BY DefaultBranch" >> query.sql
         echo "ORDER BY count DESC" >> query.sql
         echo "LIMIT 10;" >> query.sql
-        ./sqlite3 database.sqlite -header -csv < query.sql > db.csv
+        sqlite3 database.sqlite -header -csv < query.sql > db.csv
       working-directory: build
       
     - name: Transfer data into git repo
